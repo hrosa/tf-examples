@@ -1,0 +1,36 @@
+{
+   "openapi":"3.0.2",
+   "info":{
+      "title":"${api_name}",
+      "version":"${api_version}",
+      "description":"${api_description}"
+   },
+   "paths":{
+      ${api_paths}
+   },
+   "components":{
+      "schemas":{
+         "Empty":{
+            "title":"Empty Schema",
+            "type":"object"
+         }
+      },
+      "securitySchemes":{
+         "${authorizer_name}":{
+            "type":"apiKey",
+            "name":"${authorizer_name}",
+            "in":"header",
+            "x-amazon-apigateway-authtype":"custom",
+            "x-amazon-apigateway-authorizer":{
+               "authorizerUri":"arn:$${AWS::Partition}:apigateway:$${AWS::Region}:lambda:path/2015-03-31/functions/${authorizer_arn}/invocations",
+               "authorizerResultTtlInSeconds":300,
+               "identitySource":"method.request.header.Authorization, context.path",
+               "type":"request"
+            }
+         }
+      }
+   },
+   "x-amazon-apigateway-binary-media-types":[
+      "multipart/form-data"
+   ]
+}
