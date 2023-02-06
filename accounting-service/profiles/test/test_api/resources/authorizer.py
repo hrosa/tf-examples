@@ -1,5 +1,6 @@
 import json
 
+
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
 
@@ -10,6 +11,7 @@ def lambda_handler(event, context):
     print("Policy: " + json.dumps(policy, indent=2))
 
     return policy
+
 
 def generate_policy(principal_id, effect, resource):
     policy = {
