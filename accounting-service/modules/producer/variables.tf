@@ -4,6 +4,6 @@ variable "record_types" {
 }
 
 # DATA STORE
-variable "datastore-endpoint" {
+variable "datastore_endpoint" {
   type = string
 }

@@ -9,9 +9,9 @@ data "template_file" "api_path_specifications" {
   vars     = {
     aws_region = data.aws_region.current.id
 
-    api_root        = local.api_root
+    api_root        = "/store/accounting/"
     authorizer_name = "accounting-auth"
-    lambda_arn      = aws_lambda_alias.sdr_query_latest[one(each.value)].arn
+    lambda_arn      = aws_lambda_function.accounting-query[one(each.value)].arn
 
     request_template         = jsonencode(file("${local.templates_vlt}/api_request_mapper.vm"))
     response_template_list   = jsonencode(file("${local.templates_vlt}/api_request_subaccounts_mapper.vm"))
