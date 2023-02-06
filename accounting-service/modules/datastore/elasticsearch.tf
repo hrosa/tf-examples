@@ -1,6 +1,6 @@
 resource "aws_elasticsearch_domain" "accounting" {
   domain_name           = "accounting"
-  elasticsearch_version = "7.10.0"
+  elasticsearch_version = "7.9"
 
   cluster_config {
     dedicated_master_enabled = true

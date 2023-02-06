@@ -1,8 +1,14 @@
 # IDE
 .idea
+**/target/*
+
+#GOlang
+*.mod
+*.sum
 
 # Local .terraform directories
 **/.terraform/*
+*.hcl
 
 # .tfstate files
 *.tfstate

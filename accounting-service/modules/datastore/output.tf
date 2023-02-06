@@ -1,5 +1,5 @@
 output "datastore_endpoint" {
-  value = aws_elasticsearch_domain.accounting.endpoint
+  value = aws_elasticsearch_domain.accounting.arn
 }
 
 output "s3_bucket_backup_arn" {
