@@ -3,11 +3,7 @@ variable "record_types" {
   type = set(string)
 }
 
-# API GATEWAY
-variable "api_name" {
-  type = string
-}
-
-variable "api_body" {
+# DATA STORE
+variable "datastore-endpoint" {
   type = string
 }
