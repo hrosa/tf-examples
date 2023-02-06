@@ -7,3 +7,7 @@ variable "record_types" {
 variable "datastore_endpoint" {
   type = string
 }
+
+variable "s3_bucket_backup_arn" {
+  type = string
+}

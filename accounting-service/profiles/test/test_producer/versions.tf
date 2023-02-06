@@ -9,7 +9,7 @@ terraform {
   }
 
   backend "local" {
-    path = "accounting-service.tfstate"
+    path = "accounting-service-producer.tfstate"
   }
 }
 
@@ -26,11 +26,12 @@ provider "aws" {
   skip_requesting_account_id  = true
 
   endpoints {
-    cloudwatchlogs  = local.localstack_endpoint
-    elasticsearch   = local.localstack_endpoint
-    firehose        = local.localstack_endpoint
-    iam             = local.localstack_endpoint
-    s3              = local.localstack_endpoint
+    cloudwatchlogs = local.localstack_endpoint
+    elasticsearch  = local.localstack_endpoint
+    firehose       = local.localstack_endpoint
+    iam            = local.localstack_endpoint
+    s3             = local.localstack_endpoint
+    sts            = local.localstack_endpoint
   }
 }
 

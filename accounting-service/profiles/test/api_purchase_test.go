@@ -1,16 +1,17 @@
-package ci
+package accounting_service_test
 
 import (
 	"bytes"
-	"github.com/gruntwork-io/terratest/modules/terraform"
 	"io"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
 func RunApiPurchasesTestsuite(t *testing.T) {
-	RunScenario(t, "./test_api", []func(t *testing.T){readDataScenario})
+	RunTestGroup(t, "./test_api_purchase", []func(t *testing.T){readDataScenario})
 }
 
 func readDataScenario(t *testing.T) {
@@ -25,7 +26,7 @@ func readDataScenario(t *testing.T) {
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
-	res, err := client.Do(req)
+	res, _ := client.Do(req)
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Errorf("Exception to get Resp %v", err)
@@ -60,7 +61,7 @@ func readDataScenario(t *testing.T) {
 	req.Header.Add("Authorization", "Basic 1234567890")
 	t.Logf("About to issue Account Req to %v", url)
 
-	res, err = client.Do(req)
+	res, _ = client.Do(req)
 	body, err = io.ReadAll(res.Body)
 	if err != nil {
 		t.Errorf("Exception to get Resp %v", err)

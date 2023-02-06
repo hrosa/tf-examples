@@ -2,6 +2,7 @@ import boto3
 import json
 import os
 
+
 def lambda_handler(event, context):
     opensearch = boto3.client("opensearch")
 
@@ -11,7 +12,6 @@ def lambda_handler(event, context):
     query = event.get("queryStringParameters", {}).get("query", "")
     from_date = event.get("queryStringParameters", {}).get("from_date", "")
     to_date = event.get("queryStringParameters", {}).get("to_date", "")
-    customer = event.get("queryStringParameters", {}).get("customer", "")
 
     # If the query is missing, return a Bad Request response
     if not query:

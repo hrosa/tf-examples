@@ -1,8 +1,14 @@
-package accounting-service-test
+package accounting_service_test
 
 import (
 	"context"
 	"fmt"
+	"io"
+	"log"
+	"os"
+	"testing"
+	"time"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -10,23 +16,17 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/moby/term"
-	"io"
-	"log"
-	"os"
-	"strconv"
-	"testing"
-	"time"
 )
 
-func AccountingServiceTestsuite(t *testing.T) {
-  //t.Run("TestDataProducer", RunDataProducerTestsuite)
-  //t.Run("TestApiPurchases", RunApiPurchasesTestsuite)
-  //t.Run("TestApiPurchases", RunApiRepairsTestsuite)
+func TestEntrypoint(t *testing.T) {
+	t.Run("TestDataProducer", RunDataProducerTestsuite)
+	//t.Run("TestApiPurchases", RunApiPurchasesTestsuite)
+	//t.Run("TestApiPurchases", RunApiRepairsTestsuite)
 }
 
 func RunTestGroup(t *testing.T, tfModule string, subTests []func(t *testing.T)) {
 	// GIVEN
-	var localStackImage = "localstack/localstack:1.3.7"
+	var localStackImage = "localstack/localstack:1.3.0"
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		panic(err)
@@ -56,7 +56,7 @@ func RunTestGroup(t *testing.T, tfModule string, subTests []func(t *testing.T)) 
 		MigrateState:       true,
 		TimeBetweenRetries: 5 * time.Second,
 		EnvVars: map[string]string{
-			"TF_LOG": "ERROR",
+			"TF_LOG": "INFO",
 		},
 	}
 
@@ -64,10 +64,9 @@ func RunTestGroup(t *testing.T, tfModule string, subTests []func(t *testing.T)) 
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Run test groups, one at a time
-    for _, tc := range tests {
-        tc := tc // capture range variable
-        t.Run(tc.Name, tc)
-    }
+	for i, tc := range subTests {
+		t.Run(fmt.Sprint("subtest", i), tc)
+	}
 }
 
 func LaunchLocalStack(cli *client.Client, imageName string, tempDir string) string {
@@ -79,12 +78,12 @@ func LaunchLocalStack(cli *client.Client, imageName string, tempDir string) stri
 	var writeBuff io.Writer = os.Stderr
 	outFd, isTerminalOut := term.GetFdInfo(os.Stderr)
 
-	err = jsonmessage.DisplayJSONMessagesStream(pull, writeBuff, outFd, isTerminalOut, nil)
+	_ = jsonmessage.DisplayJSONMessagesStream(pull, writeBuff, outFd, isTerminalOut, nil)
 	if err = pull.Close(); err != nil {
 		panic(err)
 	}
 
-	portRange, err := nat.NewPort("tcp", "4510-4559")
+	portRange, _ := nat.NewPort("tcp", "4510-4559")
 	portBindings := nat.PortMap{}
 
 	for _, rawMapping := range []string{
@@ -107,7 +106,7 @@ func LaunchLocalStack(cli *client.Client, imageName string, tempDir string) stri
 			ExposedPorts: nat.PortSet{"4566": struct{}{},
 				portRange: struct{}{}},
 			Env: []string{
-				"LOCALSTACK_API_KEY=xxxxxxxxxx",
+				//"LOCALSTACK_API_KEY=xxxxxxxxxx",
 				// Per default, all services are loaded and started on the first request for that service.
 				"AWS_DEFAULT_REGION=us-east-1",
 				"AWS_SECRET_ACCESS_KEY=secretkey",
@@ -115,7 +114,7 @@ func LaunchLocalStack(cli *client.Client, imageName string, tempDir string) stri
 				"DOCKER_HOST=unix:///var/run/docker.sock",
 				"DEFAULT_REGION=us-east-1",
 				"DEBUG=0",
-				"LS_LOG=info", //trace, trace-internal, debug, info, warn, error, warning
+				"LS_LOG=debug", //trace, trace-internal, debug, info, warn, error, warning
 				"DATA_DIR=/tmp/localstack/data",
 				"PERSISTENCE=1",
 				"PERSIST_ALL=true",
