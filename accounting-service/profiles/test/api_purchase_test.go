@@ -17,7 +17,7 @@ func RunApiPurchasesTestsuite(t *testing.T) {
 func readDataScenario(t *testing.T) {
 	client := &http.Client{}
 
-	url := "http://purchases.us-east-1.es.localhost.localstack.cloud:4566/purchases/_doc"
+	url := "http://purchase.us-east-1.es.localhost.localstack.cloud:4566/purchases/_doc"
 	payload := []byte(`{"id": "12345", date_created: "01-01-2023 12:00:00", "description": "Laptop xyz", "value": 600, "currency": "EUR"}`)
 	bodyReader := bytes.NewReader(payload)
 	req, err := http.NewRequest(http.MethodPost, url, bodyReader)
