@@ -106,12 +106,12 @@ func testForbiddenWrite(t *testing.T) {
 	})
 
 	// WHEN
-	streamName := "accounting-purchase"
+	streamName := "accounting-repair"
 	documents := []map[string]interface{}{
 		{
 			"id":           "123",
 			"date_created": "01-01-2023 12:00:00",
-			"description":  "Laptop",
+			"description":  "Broken TV",
 			"value":        600.0,
 			"currency":     "EUR",
 		},
