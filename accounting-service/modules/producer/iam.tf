@@ -1,5 +1,6 @@
 # KINESIS AGENT
 resource "aws_iam_role" "producer" {
+  name = "accounting-producer"
   assume_role_policy = jsonencode(
     {
       Version : "2012-10-17",
@@ -80,8 +81,8 @@ resource "aws_iam_role_policy" "firehose_elasticsearch_write" {
                  "es:ESHttpPut"
              ],
             "Resource": [
-                "${var.datastore_endpoint}",
-                "${var.datastore_endpoint}/*"
+                "${var.datastore_arn}",
+                "${var.datastore_arn}/*"
             ]
          }
       ]
@@ -102,14 +103,14 @@ resource "aws_iam_role_policy" "firehose_elasticsearch_api" {
             "es:ESHttpGet"
           ],
           Resource : [
-            "${var.datastore_endpoint}/_all/_settings",
-            "${var.datastore_endpoint}/_cluster/stats",
-            "${var.datastore_endpoint}/${each.key}/_mapping/*",
-            "${var.datastore_endpoint}/_nodes",
-            "${var.datastore_endpoint}/_nodes/stats",
-            "${var.datastore_endpoint}/_nodes/*/stats",
-            "${var.datastore_endpoint}/_stats",
-            "${var.datastore_endpoint}/${each.key}/_stats"
+            "${var.datastore_arn}/_all/_settings",
+            "${var.datastore_arn}/_cluster/stats",
+            "${var.datastore_arn}/${each.key}/_mapping/*",
+            "${var.datastore_arn}/_nodes",
+            "${var.datastore_arn}/_nodes/stats",
+            "${var.datastore_arn}/_nodes/*/stats",
+            "${var.datastore_arn}/_stats",
+            "${var.datastore_arn}/${each.key}/_stats"
           ]
         }
       ]

@@ -10,6 +10,6 @@ module "producer" {
   depends_on = [module.datastore]
 
   record_types         = local.record_types
-  datastore_endpoint   = module.datastore.datastore_endpoint
+  datastore_arn        = module.datastore.datastore_arn
   s3_bucket_backup_arn = module.datastore.s3_bucket_backup_arn
 }

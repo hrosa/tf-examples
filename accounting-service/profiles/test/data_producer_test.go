@@ -1,14 +1,14 @@
 package accounting_service_test
 
 import (
-	"flag"
+	"encoding/json"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/kinesis"
+	"github.com/aws/aws-sdk-go/service/firehose"
 	"gotest.tools/v3/assert"
 )
 
@@ -24,30 +24,44 @@ func writeData(t *testing.T) {
 		Endpoint:    aws.String("http://localhost:4566"),
 		Region:      aws.String("us-east-1"),
 	}))
-	stsCreds := stscreds.NewCredentials(sess, "arn:aws:iam::000000000000:role/test-data-producer")
+	stsCreds := stscreds.NewCredentials(sess, "arn:aws:iam::000000000000:role/accounting-producer")
 
-	svc := kinesis.New(sess, &aws.Config{
+	producer := firehose.New(sess, &aws.Config{
 		Credentials: stsCreds,
 		Endpoint:    aws.String("http://localhost:4566"),
 		Region:      aws.String("us-east-1"),
 	})
 
 	// WHEN
-	stream := flag.String("s", "purchase", "The stream name")
-	partition := flag.String("k", "SHOPxyz", "The partition key")
-	payload := flag.String("p", `{"id": "12345", "date_created":"01-01-2023 12:00:00", "description": "Laptop", "amount": 600, "currency": "EUR" }`, "The payload")
-
-	entries := make([]*kinesis.PutRecordsRequestEntry, 1)
-	entries[0] = &kinesis.PutRecordsRequestEntry{
-		Data:         []byte(*payload),
-		PartitionKey: partition,
+	streamName := "accounting-purchase"
+	documents := []map[string]interface{}{
+		{
+			"id":           "123",
+			"date_created": "01-01-2023 12:00:00",
+			"description":  "Laptop",
+			"value":        600.0,
+			"currency":     "EUR",
+		},
+		{
+			"id":           "124",
+			"date_created": "01-01-2023 13:00:00",
+			"description":  "Smartphone",
+			"value":        550.0,
+			"currency":     "EUR",
+		},
+	}
+	records := make([]*firehose.Record, 0, len(documents))
+	for _, doc := range documents {
+		docBytes, _ := json.Marshal(doc)
+		records = append(records, &firehose.Record{
+			Data: docBytes,
+		})
 	}
 
-	inputs := &kinesis.PutRecordsInput{
-		Records:    entries,
-		StreamName: stream,
-	}
-	_, err := svc.PutRecords(inputs)
+	_, err := producer.PutRecordBatch(&firehose.PutRecordBatchInput{
+		DeliveryStreamName: aws.String(streamName),
+		Records:            records,
+	})
 
 	// THEN
 	assert.NilError(t, err, "Kinesis agent failed to put records")
