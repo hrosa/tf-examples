@@ -1,50 +1,82 @@
-openapi: 3.0.2
-info:
-  title: Users API
-  description: An example API for managing users
-  version: 1.0.0
-servers:
-  - url: https://api.example.com/v1
-paths:
-  /users:
-    get:
-      summary: Retrieve a list of users
-      responses:
-        200:
-          description: List of users
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-    post:
-      summary: Add a new user
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        201:
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-
-components:
-  schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the user
-        name:
-          type: string
-          description: Name of the user
-        email:
-          type: string
-          description: Email address of the user
+"${api_root}/purchases": {
+  "get": {
+    "description": "Returns a list of all purchases",
+    "responses": {
+      "200": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "dateCreated": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "itemName": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "price": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "currency": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request"
+      },
+      "500": {
+        "description": "Internal Server Error"
+      }
+    },
+    "security" : [ {
+      "${authorizer_name}" : [ ]
+    } ],
+    "x-amazon-apigateway-integration" : {
+      "httpMethod" : "POST",
+      "uri" : "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${lambda_arn}/invocations",
+      "responses" : {
+        ".*httpStatus\":400.*" : {
+          "statusCode" : "400",
+          "responseTemplates" : {
+            "application/json" : "$input.json('$')",
+          }
+        },
+        "default" : {
+          "statusCode" : "200",
+          "responseTemplates" : {
+            "application/json" : "$input.json('$')",
+          }
+        },
+        ".*httpStatus\":500.*" : {
+          "statusCode" : "500",
+          "responseTemplates" : {
+            "application/json" : "$input.json('$')",
+          }
+        }
+      },
+      "requestTemplates" : {
+      },
+      "passthroughBehavior" : "when_no_match",
+      "timeoutInMillis" : 15000,
+      "type" : "aws"
+    }
+  }
+}

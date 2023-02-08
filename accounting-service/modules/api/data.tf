@@ -6,7 +6,7 @@ data "template_file" "api_path_specifications" {
   template = file("${local.templates_openapi}/${each.key}")
   vars     = {
     aws_region      = data.aws_region.current.id
-    api_root        = "/store/accounting/"
+    api_root        = "/accounting"
     authorizer_name = aws_lambda_function.api-auth.function_name
     lambda_arn      = aws_lambda_function.accounting-query[one(each.value)].arn
   }

@@ -35,7 +35,7 @@ func readDataScenario(t *testing.T) {
 	t.Logf("ES Doc Put %v", string(body))
 
 	terraformOptions := &terraform.Options{
-		TerraformDir:       "./sdr_api",
+		TerraformDir:       "./test_api_purchase",
 		Lock:               false,
 		Upgrade:            true,
 		MaxRetries:         1,
@@ -47,12 +47,9 @@ func readDataScenario(t *testing.T) {
 
 	t.Logf("Terraform output %v", outputAll)
 
-	apiId := outputAll["sdr_api_id"].(string)
-	stageId := outputAll["sdr_api_gateway_stage_name"].(string)
-
-	//The request to APIGW will result in empty response because of a VLT bug at localstack  https://github.com/localstack/localstack/issues/7188
-	url = "http://" + apiId + ".execute-api.localhost.localstack.cloud:4566/" + stageId + "/api/2012-04-24/Accounts/AC40ea78485341fe8a47763043506064b5/Recordings"
-	req, err = http.NewRequest(http.MethodGet, url, nil)
+	apiId := outputAll["api_id"].(string)
+	stageId := outputAll["api_stage_name"].(string)
+	req, err = http.NewRequest(http.MethodGet, "http://"+apiId+".execute-api.localhost.localstack.cloud:4566/"+stageId+"/accounting/purchases", nil)
 	if err != nil {
 		t.Errorf("Exception to create Req %v", err)
 	}
@@ -67,5 +64,5 @@ func readDataScenario(t *testing.T) {
 		t.Errorf("Exception to get Resp %v", err)
 		return
 	}
-	t.Logf("Recording API Search %v", string(body))
+	t.Logf("API Search %v", string(body))
 }
