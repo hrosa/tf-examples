@@ -15,16 +15,12 @@
                     "type": "integer",
                     "format": "int64"
                   },
-                  "dateCreated": {
+                  "date_created": {
                     "type": "string",
                     "format": "date-time"
                   },
-                  "itemName": {
+                  "item_name": {
                     "type": "string"
-                  },
-                  "quantity": {
-                    "type": "integer",
-                    "format": "int32"
                   },
                   "price": {
                     "type": "number",

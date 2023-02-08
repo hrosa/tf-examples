@@ -2,8 +2,12 @@ package accounting_service_test
 
 import (
 	"bytes"
+	"encoding/json"
+	"github.com/PaesslerAG/jsonpath"
+	"gotest.tools/v3/assert"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -15,25 +19,8 @@ func RunApiPurchasesTestsuite(t *testing.T) {
 }
 
 func readDataScenario(t *testing.T) {
-	client := &http.Client{}
-
-	url := "http://purchase.us-east-1.es.localhost.localstack.cloud:4566/purchases/_doc"
-	payload := []byte(`{"id": "12345", date_created: "01-01-2023 12:00:00", "description": "Laptop xyz", "value": 600, "currency": "EUR"}`)
-	bodyReader := bytes.NewReader(payload)
-	req, err := http.NewRequest(http.MethodPost, url, bodyReader)
-	if err != nil {
-		t.Errorf("Exception to create Req %v", err)
-	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept", "application/json")
-	res, _ := client.Do(req)
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		t.Errorf("Exception to get Resp %v", err)
-		return
-	}
-	t.Logf("ES Doc Put %v", string(body))
-
+	// GIVEN
+	// Get contextual data from TF output
 	terraformOptions := &terraform.Options{
 		TerraformDir:       "./test_api_purchase",
 		Lock:               false,
@@ -42,27 +29,42 @@ func readDataScenario(t *testing.T) {
 		MigrateState:       true,
 		TimeBetweenRetries: 5 * time.Second,
 	}
+	outputs := terraform.OutputAll(t, terraformOptions)
+	t.Logf("Terraform output %v", outputs)
 
-	outputAll := terraform.OutputAll(t, terraformOptions)
+	apiId := outputs["api_id"].(string)
+	stageId := outputs["api_stage_name"].(string)
+	esEndpoint := outputs["datastore_endpoint"].(string)
 
-	t.Logf("Terraform output %v", outputAll)
+	// Provision ElasticSearch records
+	payload := []byte(`{"id": "12345", date_created: "01-01-2023 12:00:00", "item_name": "Laptop xyz", "price": 600.0, "currency": "EUR"}`)
+	req, _ := http.NewRequest(http.MethodPost, "http://"+esEndpoint+"/purchase/_doc", bytes.NewReader(payload))
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept", "application/json")
 
-	apiId := outputAll["api_id"].(string)
-	stageId := outputAll["api_stage_name"].(string)
-	req, err = http.NewRequest(http.MethodGet, "http://"+apiId+".execute-api.localhost.localstack.cloud:4566/"+stageId+"/accounting/purchases", nil)
-	if err != nil {
-		t.Errorf("Exception to create Req %v", err)
-	}
+	client := &http.Client{}
+	client.Do(req)
+
+	// WHEN
+	req, _ = http.NewRequest(http.MethodGet, "http://"+apiId+".execute-api.localhost.localstack.cloud:4566/"+stageId+"/accounting/purchases", nil)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Authorization", "Basic 1234567890")
-	t.Logf("About to issue Account Req to %v", url)
 
-	res, _ = client.Do(req)
-	body, err = io.ReadAll(res.Body)
-	if err != nil {
-		t.Errorf("Exception to get Resp %v", err)
-		return
-	}
-	t.Logf("API Search %v", string(body))
+	res, _ := client.Do(req)
+	body, err := io.ReadAll(res.Body)
+
+	// THEN
+	assert.NilError(t, err, "Could not make API request")
+
+	bodyJson := interface{}(nil)
+	json.Unmarshal(body, &bodyJson)
+
+	statusCode, _ := jsonpath.Get("$.statusCode", bodyJson)
+	assert.Equal(t, float64(200), statusCode.(float64), "Status Code mismatch")
+
+	esDoc, _ := jsonpath.Get("$.body", bodyJson)
+	println(esDoc)
+	assert.Assert(t, strings.Contains(esDoc.(string), `"id": "12345"`))
+
 }

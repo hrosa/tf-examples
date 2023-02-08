@@ -113,6 +113,7 @@ func LaunchLocalStack(cli *client.Client, imageName string, tempDir string) stri
 				"AWS_ACCESS_KEY_ID=accesskey",
 				"DOCKER_HOST=unix:///var/run/docker.sock",
 				"DEFAULT_REGION=us-east-1",
+				"DOCKER_BRIDGE_IP=172.17.0.1",
 				"DEBUG=0",
 				"LS_LOG=debug", //trace, trace-internal, debug, info, warn, error, warning
 				"DATA_DIR=/tmp/localstack/data",
@@ -120,6 +121,10 @@ func LaunchLocalStack(cli *client.Client, imageName string, tempDir string) stri
 				"PERSIST_ALL=true",
 				"ENFORCE_IAM=1",
 				"IAM_SOFT_MODE=0",
+				// ELASTIC SEARCH
+				"OPENSEARCH_ENDPOINT_STRATEGY=domain",
+				// LAMBDA
+				"LAMBDA_EXECUTOR=local",
 			},
 		},
 		&container.HostConfig{

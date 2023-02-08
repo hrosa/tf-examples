@@ -31,3 +31,8 @@ variable "api_description" {
   type = string
   default = "API generated with Terraform"
 }
+
+# ELASTIC SEARCH
+variable "elasticsearch_endpoint" {
+  type = string
+}

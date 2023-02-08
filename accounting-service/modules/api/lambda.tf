@@ -25,6 +25,7 @@ resource "aws_lambda_function" "accounting-query" {
   environment {
     variables = {
       INDEX_NAME = each.key
+      ES_ENDPOINT = var.elasticsearch_endpoint
     }
   }
 }
