@@ -37,13 +37,16 @@ func readDataScenario(t *testing.T) {
 	esEndpoint := outputs["datastore_endpoint"].(string)
 
 	// Provision ElasticSearch records
-	payload := []byte(`{"id": "12345", date_created: "01-01-2023 12:00:00", "item_name": "Laptop xyz", "price": 600.0, "currency": "EUR"}`)
+	//payload := []byte(`{"id": "12345"}`)
+	payload := []byte(`{"id": "12345", "date_created": "01-01-2023 12:00:00", "item_name": "Laptop xyz", "price": 600.0, "currency": "EUR"}`)
 	req, _ := http.NewRequest(http.MethodPost, "http://"+esEndpoint+"/purchase/_doc", bytes.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
 	client := &http.Client{}
 	client.Do(req)
+
+	time.Sleep(10 * time.Second) // Wait for documents to be persisted
 
 	// WHEN
 	req, _ = http.NewRequest(http.MethodGet, "http://"+apiId+".execute-api.localhost.localstack.cloud:4566/"+stageId+"/accounting/purchases", nil)
@@ -64,7 +67,6 @@ func readDataScenario(t *testing.T) {
 	assert.Equal(t, float64(200), statusCode.(float64), "Status Code mismatch")
 
 	esDoc, _ := jsonpath.Get("$.body", bodyJson)
-	println(esDoc)
-	assert.Assert(t, strings.Contains(esDoc.(string), `"id": "12345"`))
-
+	println(esDoc.(string))
+	assert.Assert(t, strings.Contains(esDoc.(string), `"id" : "12345"`))
 }
