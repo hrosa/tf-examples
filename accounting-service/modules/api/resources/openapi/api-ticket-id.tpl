@@ -1,12 +1,12 @@
-"${api_root}/purchases/{purchase_id}": {
+"${api_root}/tickets/{ticket_id}": {
   "get": {
-    "description": "Returns a specific purchase by ID",
+    "description": "Returns a sold ticket by ID",
     "parameters": [
       {
-        "name": "purchase_id",
+        "name": "ticket_id",
         "in": "path",
         "required": true,
-        "description": "ID of the purchase to retrieve",
+        "description": "ID of the ticket to retrieve",
         "schema": {
           "type": "integer",
           "format": "int64"
@@ -25,11 +25,18 @@
                   "type": "integer",
                   "format": "int64"
                 },
-                "date_created": {
+                "issued_on": {
                   "type": "string",
                   "format": "date-time"
                 },
-                "item_name": {
+                "event_name": {
+                  "type": "string"
+                },
+                "event_date": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "event_location": {
                   "type": "string"
                 },
                 "price": {

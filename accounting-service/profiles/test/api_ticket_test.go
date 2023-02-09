@@ -14,15 +14,15 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
-func RunApiPurchasesTestsuite(t *testing.T) {
-	RunTestGroup(t, "./test_api_purchase", []func(t *testing.T){queryAllPurchases, queryPurchaseById})
+func RunApiTicketsTestsuite(t *testing.T) {
+	RunTestGroup(t, "./test_api_ticket", []func(t *testing.T){queryAllTickets, queryTicketById})
 }
 
-func queryAllPurchases(t *testing.T) {
+func queryAllTickets(t *testing.T) {
 	// GIVEN
 	// Get contextual data from TF output
 	terraformOptions := &terraform.Options{
-		TerraformDir:       "./test_api_purchase",
+		TerraformDir:       "./test_api_ticket",
 		Lock:               false,
 		Upgrade:            true,
 		MaxRetries:         1,
@@ -37,8 +37,8 @@ func queryAllPurchases(t *testing.T) {
 	esEndpoint := outputs["datastore_endpoint"].(string)
 
 	// Provision ElasticSearch records
-	payload := []byte(`{"id": "12345", "date_created": "01-01-2023 12:00:00", "item_name": "Laptop xyz", "price": 600.0, "currency": "EUR"}`)
-	req, _ := http.NewRequest(http.MethodPost, "http://"+esEndpoint+"/purchase/_doc", bytes.NewReader(payload))
+	payload := []byte(`{"id": "12345", "issued_on": "01-01-2023 12:00:00", "event_name": "Concert X", "event_date": "03-03-2023 21:00:00", "event_location": "Arena Z", "price": 45.0, "currency": "EUR"}`)
+	req, _ := http.NewRequest(http.MethodPost, "http://"+esEndpoint+"/ticket/_doc", bytes.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
@@ -46,7 +46,7 @@ func queryAllPurchases(t *testing.T) {
 	client.Do(req)
 
 	// WHEN
-	req, _ = http.NewRequest(http.MethodGet, "http://"+apiId+".execute-api.localhost.localstack.cloud:4566/"+stageId+"/accounting/purchases", nil)
+	req, _ = http.NewRequest(http.MethodGet, "http://"+apiId+".execute-api.localhost.localstack.cloud:4566/"+stageId+"/accounting/tickets", nil)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Authorization", "Basic 1234567890")
@@ -68,11 +68,11 @@ func queryAllPurchases(t *testing.T) {
 	assert.Assert(t, strings.Contains(esDoc.(string), `"id" : "12345"`))
 }
 
-func queryPurchaseById(t *testing.T) {
+func queryTicketById(t *testing.T) {
 	// GIVEN
 	// Get contextual data from TF output
 	terraformOptions := &terraform.Options{
-		TerraformDir:       "./test_api_purchase",
+		TerraformDir:       "./test_api_ticket",
 		Lock:               false,
 		Upgrade:            true,
 		MaxRetries:         1,
@@ -87,8 +87,8 @@ func queryPurchaseById(t *testing.T) {
 	esEndpoint := outputs["datastore_endpoint"].(string)
 
 	// Provision ElasticSearch records
-	payload := []byte(`{"id": "11111", "date_created": "01-01-2023 12:00:00", "item_name": "Laptop xyz", "price": 600.0, "currency": "EUR"}`)
-	req, _ := http.NewRequest(http.MethodPost, "http://"+esEndpoint+"/purchase/_doc", bytes.NewReader(payload))
+	payload := []byte(`{"id": "11111", "issued_on": "01-01-2023 12:00:00", "event_name": "Theatre Play X", "event_date": "05-04-2023 21:00:00", "event_location": "Theatre Y", "price": 20.0, "currency": "EUR"}`)
+	req, _ := http.NewRequest(http.MethodPost, "http://"+esEndpoint+"/ticket/_doc", bytes.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 
@@ -96,7 +96,7 @@ func queryPurchaseById(t *testing.T) {
 	client.Do(req)
 
 	// WHEN
-	req, _ = http.NewRequest(http.MethodGet, "http://"+apiId+".execute-api.localhost.localstack.cloud:4566/"+stageId+"/accounting/purchases/11111", nil)
+	req, _ = http.NewRequest(http.MethodGet, "http://"+apiId+".execute-api.localhost.localstack.cloud:4566/"+stageId+"/accounting/tickets/11111", nil)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Authorization", "Basic 1234567890")

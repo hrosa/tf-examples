@@ -20,8 +20,8 @@ import (
 
 func TestEntrypoint(t *testing.T) {
 	//t.Run("TestDataProducer", RunDataProducerTestsuite)
-	t.Run("TestApiPurchases", RunApiPurchasesTestsuite)
-	//t.Run("TestApiPurchases", RunApiRepairsTestsuite)
+	//t.Run("TestApiPurchases", RunApiPurchasesTestsuite)
+	t.Run("TestApiTickets", RunApiTicketsTestsuite)
 }
 
 func RunTestGroup(t *testing.T, tfModule string, subTests []func(t *testing.T)) {

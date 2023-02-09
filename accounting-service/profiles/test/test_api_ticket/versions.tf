@@ -9,7 +9,7 @@ terraform {
   }
 
   backend "local" {
-    path = "accounting-service-api-repair.tfstate"
+    path = "accounting-service-api-purchase.tfstate"
   }
 }
 

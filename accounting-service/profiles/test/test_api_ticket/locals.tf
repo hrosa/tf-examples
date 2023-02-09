@@ -7,5 +7,5 @@ locals {
   localstack_endpoint = "http://localhost:4566"
 
   # API GW
-  record_types = toset(["repair"])
+  record_types = toset(["ticket"])
 }

@@ -1,43 +1,41 @@
-"${api_root}/purchases/{purchase_id}": {
+"${api_root}/tickets": {
   "get": {
-    "description": "Returns a specific purchase by ID",
-    "parameters": [
-      {
-        "name": "purchase_id",
-        "in": "path",
-        "required": true,
-        "description": "ID of the purchase to retrieve",
-        "schema": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    ],
+    "description": "Returns a list of all purchased tickets",
     "responses": {
       "200": {
         "description": "OK",
         "content": {
           "application/json": {
             "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "date_created": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "item_name": {
-                  "type": "string"
-                },
-                "price": {
-                  "type": "number",
-                  "format": "float"
-                },
-                "currency": {
-                  "type": "string"
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "issued_on": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "event_name": {
+                    "type": "string"
+                  },
+                  "event_date": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "event_location": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number",
+                    "format": "float"
+                  },
+                  "currency": {
+                    "type": "string"
+                  }
                 }
               }
             }

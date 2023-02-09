@@ -11,7 +11,7 @@ module "api" {
   aws_account = local.aws_account
 
   record_types = local.record_types
-  api_name     = "accounting_repairs"
+  api_name     = "accounting_tickets"
 
   elasticsearch_endpoint = module.datastore.datastore_endpoint
 
