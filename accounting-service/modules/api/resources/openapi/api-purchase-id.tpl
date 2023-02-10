@@ -67,7 +67,7 @@
         "default" : {
           "statusCode" : "200",
           "responseTemplates" : {
-            "application/json" : "$input.json('$')",
+            "application/json" : "${response_single_vtl}",
           }
         },
         ".*httpStatus\":500.*" : {

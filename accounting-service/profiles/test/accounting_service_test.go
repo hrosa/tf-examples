@@ -19,8 +19,8 @@ import (
 )
 
 func TestEntrypoint(t *testing.T) {
-	//t.Run("TestDataProducer", RunDataProducerTestsuite)
-	//t.Run("TestApiPurchases", RunApiPurchasesTestsuite)
+	t.Run("TestDataProducer", RunDataProducerTestsuite)
+	t.Run("TestApiPurchases", RunApiPurchasesTestsuite)
 	t.Run("TestApiTickets", RunApiTicketsTestsuite)
 }
 

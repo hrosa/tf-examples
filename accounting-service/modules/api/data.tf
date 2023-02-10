@@ -9,5 +9,6 @@ data "template_file" "api_path_specifications" {
     api_root        = "/accounting"
     authorizer_name = aws_lambda_function.api-auth.function_name
     lambda_arn      = aws_lambda_function.accounting-query[one(each.value)].arn
+    response_single_vtl = jsonencode(file("${local.templates_vlt}/response_single.vm"))
   }
 }

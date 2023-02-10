@@ -1,0 +1,13 @@
+#set($ticket = $input.path('$').hits.hits[0]._source)
+#set($fields = [])
+#foreach($field in $ticket.keySet())
+    #set($fields = $fields + [{
+        "name": "$field",
+        "value": $ticket.get($field)
+    }])
+#end
+{
+#foreach($field in $fields)
+"$field.name": $field.value#if(!$foreach.last),#end
+#end
+}
