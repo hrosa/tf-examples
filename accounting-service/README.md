@@ -7,34 +7,57 @@ Producer writes accounting data which is stored in ElasticSearch cluster.
 ```plantuml
 @startuml
 
-node "EC2" as ec2 {
- agent "producer" as producer
- agent "kinesis-agent" as kagent
- file "records-*.log" as records
- 
- producer ..> records : write
- records <.. kagent : read
+
+
+cloud "AWS" as cloud_aws {
+    package "producer" as pkg_prod {
+     component "Kinesis Firehose" as firehose_api
+     file "IAM Role" as producer_iam
+    }
+    
+    package "datastore" as pkg_db {
+     component "OpenSearch" as db
+    }
+    
+    package "api" as pkg_api {
+     component "API GW" as api
+     component "Lambda" as lambda_query 
+     file "OpenAPI" as openapi
+     file "VTL Template" as vtl
+     
+     api -> lambda_query : HTTP GET
+     api ..> openapi : body
+     api ..> vtl : req/rsp template
+    }
+    
+    package "api_security" as pkg_api_sec {
+     control "WAF"as api_waf
+    }
 }
 
-package "Data Broker" {
- component "Kinesis Stream" as broker
+cloud "DataDog" as cloud_dd {
+    package "api_monitoring" as pkg_api_mon {
+     collections "datadog_monitor" as dd_monitor
+     collections "datadog_dashboard" as dd_dash
+     dd_monitor -[hidden]- dd_dash
+    }
 }
+
+cloud_dd -[hidden]left- cloud_aws
+
+api -[hidden]left- api_waf
+
+
+actor producer
+producer -up-> firehose_api : push
+producer -up-> producer_iam : assume
+
+firehose_api -up-> db : write
+
+lambda_query --> db : query
 
 actor "HTTP Client" as client_http
-package "Accounting API" {
- component "API GW" as api
- component "Lambda" as lambda_query
- component "OpenSearch" as db
- component "Kinesis Firehose" as firehose_api
- 
- api --> lambda_query : HTTP GET
- lambda_query --> db : query
- firehose_api -left-> db : write
-}
-
-kagent --> broker : push
-firehose_api -> broker : poll
-
-client_http --> api : HTTP GET
+client_http --> api_waf  : HTTP GET
+api_waf --> api  : HTTP GET
 @enduml
 ```
