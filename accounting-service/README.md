@@ -43,10 +43,7 @@ cloud "DataDog" as cloud_dd {
     }
 }
 
-cloud_dd -[hidden]left- cloud_aws
-
-api -[hidden]left- api_waf
-
+cloud_dd -[hidden]right- cloud_aws
 
 actor producer
 producer -up-> firehose_api : push
